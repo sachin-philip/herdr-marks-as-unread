@@ -2,12 +2,23 @@
 
 ![Herdr sidebar with a red unread badge on an agent and the Control+B, then M shortcut](assets/mark-as-unread.png)
 
-Keep track of agents you want to revisit. Add a red `unread` badge to the start of
-an agent's sidebar detail line, then have it clear automatically when
-you return to that terminal.
+Keep track of agents you want to revisit. Add a red `unread` badge to an
+agent's sidebar row, then have it clear automatically when you return to that
+terminal.
 
 The marker is display-only metadata. It does not change the agent's lifecycle
 status, completion badge, name, title, or notifications.
+
+This repo ships two implementations, one per Herdr:
+
+| You run | Install from | Marks are |
+|---|---|---|
+| The Herdr TUI (`herdr`, 0.9.3+) | the repo root, with `herdr plugin install` | pane tokens, drawn by a `$herdr_mark` sidebar token |
+| The Herdr desktop app (Herdr.app on herdr-core) | the `herdr-app/` folder, as a Herdr mod | terminal labels, drawn by a cloned Agents sidebar |
+
+They do not share state: a mark set in one is not shown by the other.
+
+# Herdr TUI
 
 ## Install
 
@@ -124,6 +135,80 @@ Before uninstalling, clear any markers. After uninstalling, remove `$herdr_mark`
 from your sidebar layouts and remove this plugin's `[[keys.command]]` entry, then
 reload the config. For a local checkout, use `herdr plugin unlink` instead.
 
-## License
+# Herdr desktop app
+
+![Herdr app Agents list with a red unread badge on an idle agent](herdr-app/preview.png)
+
+The desktop app does not run TUI plugins. For it, `herdr-app/` holds a mod: a
+copy of the Agents sidebar that shows a red `unread` badge on any agent whose
+terminal carries the label `herdr.mark=unread`, and clears it when you focus
+that agent. `herdr-app/RECIPE.md` describes it in full.
+
+## Install with your agent
+
+Open Claude Code (or another agent) in a Herdr terminal and ask:
+
+```
+Add the Herdr mod from https://github.com/sachin-philip/herdr-marks-as-unread,
+folder herdr-app. Follow its RECIPE.md.
+```
+
+The agent copies the mod, clones your layout to use it, adds the shortcut, and
+runs `herdr-app check`. It will tell you the mod runs `hc`; that is how marks
+are written.
+
+## Install by hand
+
+1. Copy `herdr-app/mods/agents-marks/` into `~/.config/herdr-app/mods/`.
+2. Clone the layout you use (shipped layouts are read-only):
+
+   ```sh
+   herdr-app do layout.clone '{"name":"main","as":"herdr-marks"}'
+   ```
+
+3. In `~/.config/herdr-app/layouts/herdr-marks.json`, change `"mod": "agents"`
+   to `"mod": "agents-marks"`. The window updates within a second.
+4. Add the shortcut to `~/.config/herdr-app/keys.json`:
+
+   ```json
+   "layout:herdr-marks": { "cmd-shift-m": "agents-marks.toggle" }
+   ```
+
+   Editing keys.json makes the file yours: Herdr stops adding new default
+   shortcuts to it, so add future ones by hand.
+5. Check it:
+
+   ```sh
+   herdr-app check ~/.config/herdr-app/mods/agents-marks
+   ```
+
+## Use
+
+- Focus an agent and press **Cmd+Shift+M** to mark it. Press again to unmark.
+- Or hover its row in the Agents list and click the square icon. Click the
+  `unread` badge to clear it.
+- Focusing a marked agent clears the mark. Marking the agent you are viewing
+  keeps it until you leave and return.
+- From a shell: `hc label t4 herdr.mark=unread` sets it and `hc label t4 herdr.mark=`
+  clears it. Marks are terminal labels, so every Herdr client sees them, and
+  they end with the terminal.
+
+## Limitations
+
+- Only agents (terminals that report a status) are listed, so only they can
+  show a mark.
+- The mod is a clone of Herdr's `agents` mod at version 0.1.13 and does not
+  receive Herdr's updates to the sidebar. Updating the mod means copying the
+  folder again.
+- Switch back to the shipped layout at any time with Cmd+Shift+L; your marks
+  stay on the terminals but are not drawn there.
+
+## Uninstall
+
+Switch to the `main` layout, delete `~/.config/herdr-app/mods/agents-marks/`
+and `~/.config/herdr-app/layouts/herdr-marks.json`, and remove the
+`layout:herdr-marks` section from keys.json.
+
+# License
 
 MIT. See [LICENSE](LICENSE).

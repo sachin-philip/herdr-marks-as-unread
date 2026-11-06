@@ -1,0 +1,5 @@
+{
+  "layout:herdr-marks": {
+    "cmd-shift-m": "agents-marks.toggle"
+  }
+}
