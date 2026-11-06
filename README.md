@@ -1,6 +1,6 @@
 # Herdr Marks as Unread
 
-![Herdr sidebar with a red unread badge on an agent and the Control+B, then M shortcut](assets/mark-as-unread.png)
+![Mark as unread in the Herdr TUI (prefix, then M) and in the Herdr app (hover an agent, click the unread icon)](assets/mark-as-unread.png)
 
 Keep track of agents you want to revisit. Add a red `unread` badge to an
 agent's sidebar row, then have it clear automatically when you return to that
